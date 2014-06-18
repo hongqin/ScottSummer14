@@ -1,0 +1,14 @@
+Cellular Aging
+Introduction:
+
+Main topic: 
+The effect of robustness on cellular aging, or RLS in the yeast Saccharomyces cerevisiae.
+
+Hypothesis:
+It is hypothesized that robustness and several different proxies will be directly correlated to replicative life span in Sacchoromyces Cerevisiae.
+
+Method:
+Using R statistical software, we are able to examine each robustness proxy to determine its relationship with replicative life span. This will ultimately determine whether or not that proxy leads to a shorter or longer lifespan. 
+
+In yeast Saccharomyces Cerevisiae, aging is known as replicative life span or RLS. Replicative life span is determined by the number of cell divisions that occur prior to senescence; which is when a cell is no longer capable of dividing but still alive and metabolically active. Cellular robustness is defined as the persistence of a certain characteristic or trait in a system under perturbations or conditions of uncertainty such as temperature, time, and cellular damage.
+Cellular aging is known as the deterioration of cellular functions. As a cell’s network robustness decreases, it will be less able to adapt against external perturbations; ultimately causing aging. Protein robustness, the ability of a cell to maintain homeostasis was found to increase lifespan in prior studies. It is hypothesized that robustness and several different proxies will be directly correlated to replicative life span in Saccharomyces Cerevisiae. The robustness proxies examined are evolutionary distance, morphological plasticity, fitness and the number of genetic interactions. 
