@@ -1,27 +1,27 @@
+setwd("~/github/ScottSummer14/robustnessAA/current2012Fall")
 
-setwd("~/Dropbox/Alexander_Ramp_Research/robustnessAA/current2012Fall/data")
 
 ###INPUT DATA INTO R
 
 
 #Read lifespan table into R
-lifespan = read.csv("lifespan.csv");
+lifespan = read.csv("data/lifespan.csv");
 
 #Read growth fitness table into R
-fit = read.csv("growth.fitness.hom.csv");
+fit = read.csv("data/growth.fitness.hom.csv");
 fit$orf = as.character( fit$orf ); 
 
 #Read evolutionary distance table into R
-Kdata = read.csv( "Sce.Spa.KaKs.csv");
+Kdata = read.csv( "data/Sce.Spa.KaKs.csv");
 
-gPairs = read.csv("sgadata_costanzo2009_stringentCutoff_101120.csv", header=F)
+gPairs = read.csv("data/sgadata_costanzo2009_stringentCutoff_101120.csv", header=F)
 names(gPairs) = c("ORF1", "Name1", "ORF2", "Name2", NA, NA, NA)
 gPairs$ORF1 = as.character( gPairs$ORF1 )
 gPairs$ORF2 = as.character( gPairs$ORF2 )
 
 
 #Input protein interaction pairs
-pairs = read.csv("pairs.csv");
+pairs = read.csv("data/pairs.csv");
 colnames(pairs) = c("ORF1", "ORF2")
 pairs$ORF1 = as.character( pairs$ORF1 );
 pairs$ORF2 = as.character( pairs$ORF2 );
