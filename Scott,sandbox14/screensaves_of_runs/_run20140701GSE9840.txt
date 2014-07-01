@@ -1,0 +1,308 @@
+
+R version 3.0.2 (2013-09-25) -- "Frisbee Sailing"
+Copyright (C) 2013 The R Foundation for Statistical Computing
+Platform: x86_64-apple-darwin10.8.0 (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> setwd("~/github/ScottSummer14/Scott,sandbox14")
+> rm(list=ls())
+> 
+> #RLS table
+> RLS.tb = read.csv("data/lifespan.csv")
+> RLS.tb$ORF = as.character(RLS.tb$ORF)
+> str(RLS.tb)
+'data.frame':	584 obs. of  17 variables:
+ $ ORF           : chr  "YMR056C" "YCR107W" "YHR047C" "YAL054C" ...
+ $ Gene          : Factor w/ 374 levels "","AAC1","AAD3",..: 2 3 4 5 6 7 8 9 10 11 ...
+ $ RLS_Del_alpha : num  25.3 27.4 15.8 24.5 25.7 23.4 23.4 28.4 14.7 29.4 ...
+ $ N             : int  -105 -20 -5 -10 -25 -10 -10 -15 -25 -10 ...
+ $ BY4742        : num  23.9 23.8 22.4 26.1 28.4 22.7 29.6 25 25.8 30 ...
+ $ N.1           : int  -135 -20 -5 -10 -25 -10 -10 -25 -25 -10 ...
+ $ p.value       : num  2.2e-01 3.7e-01 1.9e-01 5.7e-01 4.0e-01 6.5e-01 8.1e-02 5.4e-01 9.5e-06 9.1e-01 ...
+ $ RLS_Del_a     : num  28.7 0 0 0 0 0 0 0 0 0 ...
+ $ N.2           : int  -100 0 0 0 0 0 0 0 0 0 ...
+ $ BY4741        : num  26.8 0 0 0 0 0 0 0 0 0 ...
+ $ N.3           : int  -120 0 0 0 0 0 0 0 0 0 ...
+ $ p.value.1     : num  0.13 0 0 0 0 0 0 0 0 0 ...
+ $ RLS_Del.pooled: num  26.9 27.4 15.8 24.5 25.7 23.4 23.4 28.4 14.7 29.4 ...
+ $ N.4           : int  -205 -20 -5 -10 -25 -10 -10 -15 -25 -10 ...
+ $ Pooled        : num  25.3 23.8 22.4 26.1 28.4 22.7 29.6 25 25.8 30 ...
+ $ N.5           : int  -255 -20 -5 -10 -25 -10 -10 -25 -25 -10 ...
+ $ p.value.2     : Factor w/ 176 levels "","1.00E-001",..: 49 70 29 108 77 120 147 103 169 163 ...
+> #'data.frame':  584 obs. of  17 variables:
+> 
+> #these are robustness from gene expression
+> #robustness is inversely represented by CV=signma/mean
+> list.files(, path="data", pattern='GSE') 
+[1] "GSE12221_log2CV.csv" "GSE18334_log2CV.csv" "GSE33276_log2CV.csv"
+[4] "GSE3821_log2CV.csv"  "GSE9840_log2CV.csv"  "GSE9985_log2CV.csv" 
+> #GSE1221 CV !~ RLS
+> #GSE18334_log2CV.csv CV~ RLS p=0.45
+> #GSE33276_log2CV.csv, p=0.9
+> # GSE3821_log2CV.csv, p=0.97
+> #GSE9840_log2CV.csv, p=0.052
+> 
+> CV.tb = read.csv("data/GSE9840_log2CV.csv")  #CV table  
+> CV.tb$ORF = as.character( CV.tb$ORF )
+> str(CV.tb)
+'data.frame':	5667 obs. of  4 variables:
+ $ ORF     : chr  "YKR009C" "YDL157C" "YER059W" "YGL059W" ...
+ $ myStddev: num  1.462 0.45 0.135 0.607 0.254 ...
+ $ myMean  : num  11.13 11.15 8.83 9.41 11.13 ...
+ $ myCV    : num  0.1313 0.0403 0.0153 0.0645 0.0228 ...
+> 
+> ### merged RLS, CV based on shared 'ORF' column
+> RLS.tb2 = merge(RLS.tb, CV.tb)
+> 
+> m = lm(RLS.tb2$RLS_Del_alpha ~ RLS.tb2$myCV)  
+> summary(m)
+
+Call:
+lm(formula = RLS.tb2$RLS_Del_alpha ~ RLS.tb2$myCV)
+
+Residuals:
+    Min      1Q  Median      3Q     Max 
+-20.279  -2.772  -0.067   3.158  14.622 
+
+Coefficients:
+             Estimate Std. Error t value Pr(>|t|)    
+(Intercept)   24.0385     0.3094  77.699   <2e-16 ***
+RLS.tb2$myCV   6.1844     3.1788   1.945   0.0523 .  
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 5.098 on 495 degrees of freedom
+Multiple R-squared:  0.007588,	Adjusted R-squared:  0.005583 
+F-statistic: 3.785 on 1 and 495 DF,  p-value: 0.05228
+
+> 
+> m = lm(RLS.tb2$RLS_Del.pooled  ~ RLS.tb2$myCV)
+> summary(m)
+
+Call:
+lm(formula = RLS.tb2$RLS_Del.pooled ~ RLS.tb2$myCV)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-20.0112  -2.4591   0.2057   2.9851  12.9853 
+
+Coefficients:
+             Estimate Std. Error t value Pr(>|t|)    
+(Intercept)    23.859      0.283  84.309   <2e-16 ***
+RLS.tb2$myCV    3.924      2.908   1.349    0.178    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 4.663 on 495 degrees of freedom
+Multiple R-squared:  0.003665,	Adjusted R-squared:  0.001653 
+F-statistic: 1.821 on 1 and 495 DF,  p-value: 0.1778
+
+> 
+> plot( RLS.tb2$RLS_Del_alpha ~ RLS.tb2$myCV  )
+> abline(m, col='red')
+> #large CV or Stddev -> more noisy -> less robust -> slower aging rate -> long RLS (?!)
+> 
+> #######################
+> #Now, let's look at morphological robustness
+> 
+> #Read cellular morpholy mutant table with stddev, mean, CV into R
+> # scmd_CVbyRow20140701.csv was an output of "ScottSummer14/scmd_CV_20140701.R"
+> scmd = read.csv( "scmd_CVbyRow20140701.csv")
+> names(scmd)[c(1:3, 500:505)]; #check the column names
+[1] "name"     "A101_A"   "A101_A1B" "DCV196_C" "DCV197_C" "DCV198_C" "stddev"  
+[8] "mean"     "CV"      
+> 
+> #scmd$CV = scmd$stddev / (scmd$mean - min(scmd$mean) + 0.01) #make sure CV is positive
+> summary(scmd[,c("CV", "stddev", "mean")])
+       CV               stddev            mean         
+ Min.   :  0.6685   Min.   :0.3984   Min.   :-0.54490  
+ 1st Qu.:  1.3536   1st Qu.:0.7293   1st Qu.:-0.14705  
+ Median :  1.6337   Median :0.8287   Median :-0.05407  
+ Mean   :  1.8596   Mean   :0.9078   Mean   : 0.00000  
+ 3rd Qu.:  2.0522   3rd Qu.:0.9814   3rd Qu.: 0.05804  
+ Max.   :140.4180   Max.   :4.0741   Max.   : 2.78605  
+> 
+> 
+> ############## Analyze morphology robustness, lifespan, and gene expression robustness
+> # merge scmd with RLS.tb2 
+> #lifespan$scmdstddev = scmd$stddev[match(lifespan$ORF, scmd$name)];
+> RLS.tb2$scmdCV = scmd$CV[match(RLS.tb2$ORF, scmd$name)];
+> RLS.tb2$scmdMean = scmd$mean[match(RLS.tb2$ORF, scmd$name)];
+> RLS.tb2$scmdStddev = scmd$stddev[match(RLS.tb2$ORF, scmd$name)];
+> 
+> #check the merged results
+> #head(RLS.tb2)
+> 
+> #now, regression analysis
+> m = lm( RLS.tb2$RLS_Del_alpha ~ RLS.tb2$scmdCV )
+> summary(m)
+
+Call:
+lm(formula = RLS.tb2$RLS_Del_alpha ~ RLS.tb2$scmdCV)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-20.5961  -2.5714  -0.1471   3.2615  14.1229 
+
+Coefficients:
+               Estimate Std. Error t value Pr(>|t|)    
+(Intercept)     25.0548     0.5726  43.760   <2e-16 ***
+RLS.tb2$scmdCV  -0.3309     0.2990  -1.107    0.269    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 5.11 on 492 degrees of freedom
+  (3 observations deleted due to missingness)
+Multiple R-squared:  0.002483,	Adjusted R-squared:  0.0004556 
+F-statistic: 1.225 on 1 and 492 DF,  p-value: 0.269
+
+> 
+> m = lm( RLS.tb2$RLS_Del_alpha ~ sqrt(RLS.tb2$scmdCV ))
+> summary(m)
+
+Call:
+lm(formula = RLS.tb2$RLS_Del_alpha ~ sqrt(RLS.tb2$scmdCV))
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-20.6182  -2.5574  -0.1323   3.2989  14.0556 
+
+Coefficients:
+                     Estimate Std. Error t value Pr(>|t|)    
+(Intercept)           25.9812     1.2453  20.863   <2e-16 ***
+sqrt(RLS.tb2$scmdCV)  -1.1576     0.9404  -1.231    0.219    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 5.109 on 492 degrees of freedom
+  (3 observations deleted due to missingness)
+Multiple R-squared:  0.003071,	Adjusted R-squared:  0.001045 
+F-statistic: 1.516 on 1 and 492 DF,  p-value: 0.2189
+
+> 
+> 
+> m = lm( RLS.tb2$RLS_Del_alpha ~ RLS.tb2$scmdMean )
+> summary(m)
+
+Call:
+lm(formula = RLS.tb2$RLS_Del_alpha ~ RLS.tb2$scmdMean)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-16.7285  -2.7249  -0.2333   3.1202  14.6088 
+
+Coefficients:
+                 Estimate Std. Error t value Pr(>|t|)    
+(Intercept)       24.4815     0.2283 107.220  < 2e-16 ***
+RLS.tb2$scmdMean  -2.5465     0.8880  -2.868  0.00431 ** 
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 5.075 on 492 degrees of freedom
+  (3 observations deleted due to missingness)
+Multiple R-squared:  0.01644,	Adjusted R-squared:  0.01444 
+F-statistic: 8.223 on 1 and 492 DF,  p-value: 0.004314
+
+> 
+> m = lm( RLS.tb2$RLS_Del_alpha ~ RLS.tb2$scmdStddev )
+> summary(m)
+
+Call:
+lm(formula = RLS.tb2$RLS_Del_alpha ~ RLS.tb2$scmdStddev)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-15.8863  -2.6932  -0.1683   3.0519  14.9091 
+
+Coefficients:
+                   Estimate Std. Error t value Pr(>|t|)    
+(Intercept)         27.3841     0.7058  38.796  < 2e-16 ***
+RLS.tb2$scmdStddev  -3.3025     0.7590  -4.351 1.65e-05 ***
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 5.021 on 492 degrees of freedom
+  (3 observations deleted due to missingness)
+Multiple R-squared:  0.03705,	Adjusted R-squared:  0.0351 
+F-statistic: 18.93 on 1 and 492 DF,  p-value: 1.648e-05
+
+> 
+> summary( lm( RLS.tb2$myCV ~ sqrt(RLS.tb2$scmdCV )) )#p 0.78
+
+Call:
+lm(formula = RLS.tb2$myCV ~ sqrt(RLS.tb2$scmdCV))
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-0.05997 -0.03574 -0.02008  0.01151  0.75569 
+
+Coefficients:
+                     Estimate Std. Error t value Pr(>|t|)    
+(Intercept)          0.060782   0.017620    3.45  0.00061 ***
+sqrt(RLS.tb2$scmdCV) 0.003719   0.013305    0.28  0.77997    
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 0.07229 on 492 degrees of freedom
+  (3 observations deleted due to missingness)
+Multiple R-squared:  0.0001588,	Adjusted R-squared:  -0.001873 
+F-statistic: 0.07813 on 1 and 492 DF,  p-value: 0.78
+
+> summary( lm( RLS.tb2$myCV ~ sqrt(RLS.tb2$scmdMean )) )#p 0.03 ?!
+
+Call:
+lm(formula = RLS.tb2$myCV ~ sqrt(RLS.tb2$scmdMean))
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-0.05512 -0.02768 -0.01299  0.01329  0.21316 
+
+Coefficients:
+                        Estimate Std. Error t value Pr(>|t|)    
+(Intercept)             0.067188   0.005607   11.98   <2e-16 ***
+sqrt(RLS.tb2$scmdMean) -0.027171   0.012464   -2.18   0.0304 *  
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 0.04448 on 200 degrees of freedom
+  (295 observations deleted due to missingness)
+Multiple R-squared:  0.02321,	Adjusted R-squared:  0.01833 
+F-statistic: 4.752 on 1 and 200 DF,  p-value: 0.03043
+
+> summary( lm( RLS.tb2$myCV ~ sqrt(RLS.tb2$scmdStddev )) )#p 0.02 ?!
+
+Call:
+lm(formula = RLS.tb2$myCV ~ sqrt(RLS.tb2$scmdStddev))
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-0.06392 -0.03562 -0.01756  0.01178  0.74941 
+
+Coefficients:
+                         Estimate Std. Error t value Pr(>|t|)    
+(Intercept)               0.11691    0.02236   5.229 2.52e-07 ***
+sqrt(RLS.tb2$scmdStddev) -0.05523    0.02382  -2.319   0.0208 *  
+---
+Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
+
+Residual standard error: 0.0719 on 492 degrees of freedom
+  (3 observations deleted due to missingness)
+Multiple R-squared:  0.01081,	Adjusted R-squared:  0.008798 
+F-statistic: 5.376 on 1 and 492 DF,  p-value: 0.02083
+
+> 
+> 
+> 

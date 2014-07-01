@@ -16,7 +16,7 @@ list.files(, path="data", pattern='GSE')
 # GSE3821_log2CV.csv, p=0.97
 #GSE9840_log2CV.csv, p=0.052
 
-CV.tb = read.csv("data/GSE9840_log2CV.csv")  #CV table  
+CV.tb = read.csv("data/GSE9985_log2CV.csv")  #CV table  
 CV.tb$ORF = as.character( CV.tb$ORF )
 str(CV.tb)
 
@@ -53,7 +53,7 @@ RLS.tb2$scmdMean = scmd$mean[match(RLS.tb2$ORF, scmd$name)];
 RLS.tb2$scmdStddev = scmd$stddev[match(RLS.tb2$ORF, scmd$name)];
 
 #check the merged results
-head(RLS.tb2)
+#head(RLS.tb2)
 
 #now, regression analysis
 m = lm( RLS.tb2$RLS_Del_alpha ~ RLS.tb2$scmdCV )

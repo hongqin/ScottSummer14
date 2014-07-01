@@ -1,0 +1,105 @@
+
+R version 3.0.2 (2013-09-25) -- "Frisbee Sailing"
+Copyright (C) 2013 The R Foundation for Statistical Computing
+Platform: x86_64-apple-darwin10.8.0 (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> # batch_GSELog2CV - RLS regression, 2014 July 1
+> 
+> setwd("~/github/ScottSummer14/Scott,sandbox14")
+> rm(list=ls())
+> 
+> #RLS table
+> RLS.tb = read.csv("data/lifespan.csv")
+> RLS.tb$ORF = as.character(RLS.tb$ORF)
+> str(RLS.tb)
+'data.frame':	584 obs. of  17 variables:
+ $ ORF           : chr  "YMR056C" "YCR107W" "YHR047C" "YAL054C" ...
+ $ Gene          : Factor w/ 374 levels "","AAC1","AAD3",..: 2 3 4 5 6 7 8 9 10 11 ...
+ $ RLS_Del_alpha : num  25.3 27.4 15.8 24.5 25.7 23.4 23.4 28.4 14.7 29.4 ...
+ $ N             : int  -105 -20 -5 -10 -25 -10 -10 -15 -25 -10 ...
+ $ BY4742        : num  23.9 23.8 22.4 26.1 28.4 22.7 29.6 25 25.8 30 ...
+ $ N.1           : int  -135 -20 -5 -10 -25 -10 -10 -25 -25 -10 ...
+ $ p.value       : num  2.2e-01 3.7e-01 1.9e-01 5.7e-01 4.0e-01 6.5e-01 8.1e-02 5.4e-01 9.5e-06 9.1e-01 ...
+ $ RLS_Del_a     : num  28.7 0 0 0 0 0 0 0 0 0 ...
+ $ N.2           : int  -100 0 0 0 0 0 0 0 0 0 ...
+ $ BY4741        : num  26.8 0 0 0 0 0 0 0 0 0 ...
+ $ N.3           : int  -120 0 0 0 0 0 0 0 0 0 ...
+ $ p.value.1     : num  0.13 0 0 0 0 0 0 0 0 0 ...
+ $ RLS_Del.pooled: num  26.9 27.4 15.8 24.5 25.7 23.4 23.4 28.4 14.7 29.4 ...
+ $ N.4           : int  -205 -20 -5 -10 -25 -10 -10 -15 -25 -10 ...
+ $ Pooled        : num  25.3 23.8 22.4 26.1 28.4 22.7 29.6 25 25.8 30 ...
+ $ N.5           : int  -255 -20 -5 -10 -25 -10 -10 -25 -25 -10 ...
+ $ p.value.2     : Factor w/ 176 levels "","1.00E-001",..: 49 70 29 108 77 120 147 103 169 163 ...
+> #'data.frame':  584 obs. of  17 variables:
+> 
+> files = list.files(, path="data/GSElog2CV", pattern='GSE') 
+> 
+> output = data.frame(files)
+> 
+> # i = 1
+> for ( i in 1:length(files) ) {
++   filename = paste( "data/GSElog2CV/", files[i], sep='')
++   CV.tb = read.csv(filename)  
++   CV.tb$ORF = as.character( CV.tb$ORF )
++ 
++   RLS.tb2 = merge(RLS.tb, CV.tb)
++   
++   m = lm(RLS.tb2$RLS_Del_alpha ~ RLS.tb2$myCV)  
++   s = summary(m)
++   output$p.RLS.CV[i] = 1-pf( s$fstat[1], s$fstat[2], s$fstat[3])
++   
++   m = lm( log(RLS.tb2$RLS_Del_alpha) ~ RLS.tb2$myCV)  
++   s = summary(m)
++   output$p.logRLS.CV[i] = 1-pf( s$fstat[1], s$fstat[2], s$fstat[3])
++  
++   m = lm( RLS.tb2$RLS_Del_alpha ~ RLS.tb2$myMean)  
++   s = summary(m)
++   output$p.RLS.GSEMean[i] = 1-pf( s$fstat[1], s$fstat[2], s$fstat[3])
++ 
++   m = lm( RLS.tb2$RLS_Del_alpha ~ RLS.tb2$myStddev)  
++   s = summary(m)
++   output$p.RLS.GSEStddev[i] = 1-pf( s$fstat[1], s$fstat[2], s$fstat[3])
++   
++ }
+> 
+> summary(output)
+                 files       p.RLS.CV        p.logRLS.CV      p.RLS.GSEMean    
+ GSE10205_log2CV.csv: 1   Min.   :0.05228   Min.   :0.07142   Min.   :0.03705  
+ GSE11282_log2CV.csv: 1   1st Qu.:0.31501   1st Qu.:0.42230   1st Qu.:0.29367  
+ GSE11651_log2CV.csv: 1   Median :0.63046   Median :0.58293   Median :0.45956  
+ GSE12180_log2CV.csv: 1   Mean   :0.56786   Mean   :0.59574   Mean   :0.48421  
+ GSE12193_log2CV.csv: 1   3rd Qu.:0.80507   3rd Qu.:0.84259   3rd Qu.:0.70288  
+ GSE12197_log2CV.csv: 1   Max.   :0.98870   Max.   :0.99052   Max.   :0.91615  
+ (Other)            :43                                                        
+ p.RLS.GSEStddev  
+ Min.   :0.03112  
+ 1st Qu.:0.34505  
+ Median :0.60655  
+ Mean   :0.53871  
+ 3rd Qu.:0.73763  
+ Max.   :0.95330  
+                  
+> output[ output$p.RLS.GSEStddev<0.05, ]
+                 files   p.RLS.CV p.logRLS.CV p.RLS.GSEMean p.RLS.GSEStddev
+3  GSE11651_log2CV.csv 0.33987027  0.49519791     0.1998278      0.03112036
+13 GSE13695_log2CV.csv 0.30519826  0.59078926     0.1622406      0.03555437
+15 GSE14227_log2CV.csv 0.06818926  0.07142428     0.2852813      0.04772948
+> output[ output$p.RLS.GSEMean<0.05, ]
+                 files  p.RLS.CV p.logRLS.CV p.RLS.GSEMean p.RLS.GSEStddev
+33 GSE18314_log2CV.csv 0.2164405   0.2424039    0.03705482       0.6344015
+> 
+> 
