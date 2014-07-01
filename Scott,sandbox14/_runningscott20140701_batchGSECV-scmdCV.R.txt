@@ -1,0 +1,68 @@
+
+R version 3.0.2 (2013-09-25) -- "Frisbee Sailing"
+Copyright (C) 2013 The R Foundation for Statistical Computing
+Platform: x86_64-apple-darwin10.8.0 (64-bit)
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+  Natural language support but running in an English locale
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> # batch GSE stddev ~ scmdStddev, CV, 2014 July 1
+> 
+> setwd("~/github/ScottSummer14/Scott,sandbox14")
+> rm(list=ls())
+> 
+> #Read cellular morpholy mutant table with stddev, mean, CV into R
+> # scmd_CVbyRow20140701.csv was an output of "ScottSummer14/scmd_CV_20140701.R"
+> scmd = read.csv( "scmd_CVbyRow20140701.csv")
+> names(scmd)[c(1:2, 500:506)]
+[1] "name"     "A101_A"   "DCV196_C" "DCV197_C" "DCV198_C" "stddev"   "mean"    
+[8] "CV"       NA        
+> scmd$ORF = as.character(scmd$name)
+> 
+> 
+> #GSE files 
+> files = list.files(, path="data/GSElog2CV", pattern='GSE') 
+> 
+> output = data.frame(files)
+> 
+> # i = 1
+> for ( i in 1:length(files) ) {
++   filename = paste( "data/GSElog2CV/", files[i], sep='')
++   CV.tb = read.csv(filename)  
++   CV.tb$ORF = as.character( CV.tb$ORF )
++ 
++   tb = merge(CV.tb, scmd[, c(1:2,502:506)] )#based on ORF
++   
++   m = lm(tb$myCV ~ tb$CV)  
++   s = summary(m)
++   output$p.gseCV.scmdCV[i] = 1-pf( s$fstat[1], s$fstat[2], s$fstat[3])
++   
++   m = lm(tb$myStddev ~ tb$stddev)  
++   s = summary(m)
++   output$p.gseStddev.scmdStddev[i] = 1-pf( s$fstat[1], s$fstat[2], s$fstat[3])
++   
++ }
+> 
+> summary(output)
+                 files    p.gseCV.scmdCV   p.gseStddev.scmdStddev
+ GSE10205_log2CV.csv: 1   Min.   :0.2434   Min.   :0.000e+00     
+ GSE11282_log2CV.csv: 1   1st Qu.:0.3981   1st Qu.:0.000e+00     
+ GSE11651_log2CV.csv: 1   Median :0.5955   Median :1.710e-06     
+ GSE12180_log2CV.csv: 1   Mean   :0.5791   Mean   :2.166e-02     
+ GSE12193_log2CV.csv: 1   3rd Qu.:0.7308   3rd Qu.:3.399e-04     
+ GSE12197_log2CV.csv: 1   Max.   :0.9821   Max.   :3.056e-01     
+ (Other)            :43                                          
+> hist(output$p.gseStddev.scmdStddev, br=20)
+> 
+> 
